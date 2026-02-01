@@ -31,7 +31,7 @@ const Navbar: React.FC<NavbarProps> = ({ onSignIn }) => {
         {/* Actions & Mobile Toggle */}
         <div className="flex items-center gap-4">
           <button onClick={onSignIn} className="hidden md:block text-sm font-medium text-white hover:text-purple-400 transition-colors">Sign In</button>
-          <button className="hidden md:block bg-white text-black px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all hover:scale-105 active:scale-95">
+          <button onClick={onSignIn} className="hidden md:block bg-white text-black px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all hover:scale-105 active:scale-95">
             Get Started
           </button>
 

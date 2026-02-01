@@ -10,10 +10,9 @@ interface MetricVisualizerProps {
 
 const MetricVisualizer: React.FC<MetricVisualizerProps> = ({ goal, income, clients }) => {
 
-    // Parse values to simple numbers for calculations
     const numericGoal = useMemo(() => {
         const val = parseFloat(goal.replace(/[^0-9.]/g, ''));
-        return isNaN(val) ? 10000 : val; // Default to 10k if empty/invalid
+        return isNaN(val) ? 10000 : val;
     }, [goal]);
 
     const numericIncome = useMemo(() => {
@@ -21,93 +20,139 @@ const MetricVisualizer: React.FC<MetricVisualizerProps> = ({ goal, income, clien
         return isNaN(val) ? 0 : val;
     }, [income]);
 
-    // Calculate Progress (0 to 1+)
     const progress = numericGoal > 0 ? numericIncome / numericGoal : 0;
-    const isGoalMet = progress >= 1;
 
-    // Dynamic Styles based on progress
+    // Generate simulated history data based on current income
+    // This creates a smooth curve ending at current income
+    const dataPoints = useMemo(() => {
+        const points = [];
+        const steps = 7; // 7 days/points
+        for (let i = 0; i < steps; i++) {
+            // Random variation but generally increasing trend relative to current income
+            const factor = (i / (steps - 1));
+            // Simulate realistic growth curve
+            const val = numericIncome * (0.3 + (factor * 0.7)) * (0.9 + Math.random() * 0.2);
+            points.push(val);
+        }
+        // Force last point to be exactly current income
+        points[points.length - 1] = numericIncome;
+        return points;
+    }, [numericIncome]);
+
+    // Calculate Grid Lines (SVG coordinates 0-100)
+    // Max Y is Goal or Income * 1.2
+    const maxY = Math.max(numericGoal, numericIncome * 1.1);
+
+    const getY = (val: number) => {
+        return 100 - ((val / maxY) * 80); // 80% height usage, flipped Y
+    };
+
+    const getX = (idx: number) => {
+        return (idx / (dataPoints.length - 1)) * 100;
+    };
+
+    // Generate Path d attribute
+    const pathD = useMemo(() => {
+        let d = `M ${getX(0)} ${getY(dataPoints[0])}`;
+        for (let i = 1; i < dataPoints.length; i++) {
+            // Cubic bezier for smoothness
+            const x = getX(i);
+            const y = getY(dataPoints[i]);
+            const prevX = getX(i - 1);
+            const prevY = getY(dataPoints[i - 1]);
+            const cp1x = prevX + (x - prevX) / 2;
+            const cp1y = prevY;
+            const cp2x = prevX + (x - prevX) / 2;
+            const cp2y = y;
+            d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${x} ${y}`;
+        }
+        return d;
+    }, [dataPoints, maxY]);
+
+    // Area Path (closed)
+    const areaD = `${pathD} L 100 100 L 0 100 Z`;
+
+    const isGoalMet = progress >= 1;
     const coreColor = isGoalMet ? '#10b981' : '#a855f7'; // Emerald vs Purple
-    const glowIntensity = Math.min(progress + 0.2, 1.5);
-    const rotationSpeed = Math.max(20 - (clients * 0.5), 2); // Faster with more clients (lower duration)
 
     return (
-        <div className="relative w-full h-[300px] flex items-center justify-center overflow-hidden rounded-3xl bg-black/40 border border-white/5 backdrop-blur-sm group">
+        <div className="relative w-full h-[300px] bg-[#0A0A0A] border border-white/5 rounded-3xl overflow-hidden group">
+            <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,0.02)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,0.02)_1px,transparent_1px)] bg-[size:32px_32px]" />
 
-            {/* Background Grid Flux */}
-            <div className="absolute inset-0 bg-[linear-gradient(rgba(168,85,247,0.03)_1px,transparent_1px),linear-gradient(90deg,rgba(168,85,247,0.03)_1px,transparent_1px)] bg-[size:32px_32px] [mask-image:radial-gradient(ellipse_at_center,black,transparent_80%)]" />
-
-            {/* Central Holographic Core */}
-            <motion.div
-                className="relative z-10 w-32 h-32 rounded-full flex items-center justify-center"
-                animate={{
-                    boxShadow: [
-                        `0 0 20px ${coreColor}40`,
-                        `0 0 60px ${coreColor}60`,
-                        `0 0 20px ${coreColor}40`
-                    ]
-                }}
-                transition={{ duration: 3, repeat: Infinity, ease: "easeInOut" }}
-            >
-                {/* Inner Core */}
-                <div className="w-24 h-24 rounded-full bg-black border border-white/10 flex flex-col items-center justify-center z-20 relative">
-                    <span className="text-[10px] uppercase tracking-widest text-gray-500 font-mono">FLOW RATE</span>
-                    <span className={`text-2xl font-black ${isGoalMet ? 'text-green-400' : 'text-purple-400'}`}>
-                        {(progress * 100).toFixed(1)}%
-                    </span>
+            {/* Header / Legend */}
+            <div className="absolute top-6 left-6 z-10">
+                <div className="flex items-center gap-2 mb-1">
+                    <div className="w-2 h-2 rounded-full animate-pulse" style={{ backgroundColor: coreColor }} />
+                    <span className="text-xs font-mono text-gray-500 uppercase tracking-widest">Revenue Projection</span>
                 </div>
+                <div className="text-2xl font-black text-white tracking-tight">
+                    {(progress * 100).toFixed(1)}% <span className="text-sm font-medium text-gray-500">of Monthly Goal</span>
+                </div>
+            </div>
 
-                {/* Rotating Rings (Goal Progress) */}
-                {[1, 2, 3].map((i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute inset-0 rounded-full border border-transparent"
-                        style={{
-                            borderTopColor: coreColor,
-                            opacity: 0.3 - (i * 0.05),
-                            scale: 1 + (i * 0.2)
-                        }}
-                        animate={{ rotate: 360 }}
-                        transition={{ duration: 10 + (i * 5), repeat: Infinity, ease: "linear" }}
+            {/* Chart Area */}
+            <div className="absolute inset-0 px-6 pb-0 pt-20">
+                <svg className="w-full h-full overflow-visible" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    {/* Goal Line */}
+                    <line
+                        x1="0" y1={getY(numericGoal)}
+                        x2="100" y2={getY(numericGoal)}
+                        stroke="rgba(255,255,255,0.1)"
+                        strokeWidth="0.5"
+                        strokeDasharray="2 2"
                     />
-                ))}
+                    <text x="100" y={getY(numericGoal) - 2} textAnchor="end" fontSize="3" fill="rgba(255,255,255,0.3)">GOAL</text>
 
-                {/* Pulse Ring (Activity) */}
-                <motion.div
-                    className="absolute inset-0 rounded-full border border-white/10"
-                    animate={{ scale: [1, 1.5], opacity: [0.5, 0] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                />
-            </motion.div>
+                    {/* Gradient Definition */}
+                    <defs>
+                        <linearGradient id="chartGradient" x1="0" y1="0" x2="0" y2="1">
+                            <stop offset="0%" stopColor={coreColor} stopOpacity="0.3" />
+                            <stop offset="100%" stopColor={coreColor} stopOpacity="0" />
+                        </linearGradient>
+                    </defs>
 
-            {/* Orbital Particles (Clients) */}
-            <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-                {[...Array(Math.min(clients || 5, 20))].map((_, i) => (
-                    <motion.div
-                        key={i}
-                        className="absolute w-[200px] h-[200px] rounded-full"
-                        style={{ rotate: i * (360 / Math.min(clients, 20)) }}
-                        animate={{ rotate: [i * (360 / Math.min(clients, 20)), i * (360 / Math.min(clients, 20)) + 360] }}
-                        transition={{ duration: rotationSpeed + (i % 3), repeat: Infinity, ease: "linear" }}
-                    >
-                        <motion.div
-                            className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_10px_rgba(96,165,250,0.8)]"
-                            style={{ position: 'absolute', top: 0, left: '50%', transform: 'translate(-50%, -50%)' }}
+                    {/* Area Fill */}
+                    <motion.path
+                        d={areaD}
+                        fill="url(#chartGradient)"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1, d: areaD }}
+                        transition={{ duration: 1 }}
+                    />
+
+                    {/* Line Stroke */}
+                    <motion.path
+                        d={pathD}
+                        fill="none"
+                        stroke={coreColor}
+                        strokeWidth="1"
+                        initial={{ pathLength: 0 }}
+                        animate={{ pathLength: 1, d: pathD }}
+                        transition={{ duration: 1.5, ease: "easeInOut" }}
+                    />
+
+                    {/* Data Points */}
+                    {dataPoints.map((val, i) => (
+                        <motion.circle
+                            key={i}
+                            cx={getX(i)}
+                            cy={getY(val)}
+                            r="1"
+                            fill="#0A0A0A"
+                            stroke={coreColor}
+                            strokeWidth="0.5"
+                            initial={{ scale: 0 }}
+                            animate={{ scale: 1, cy: getY(val) }}
+                            transition={{ delay: 1 + (i * 0.1) }}
                         />
-                    </motion.div>
-                ))}
+                    ))}
+                </svg>
             </div>
 
-            {/* Data Overlay Label */}
-            <div className="absolute bottom-4 left-6">
-                <div className="flex items-center gap-2">
-                    <div className={`w-2 h-2 rounded-full ${isGoalMet ? 'bg-green-500' : 'bg-purple-500'} animate-pulse`} />
-                    <span className="text-xs font-mono text-gray-400 uppercase">System Status: {isGoalMet ? 'OPTIMAL' : 'ACCUMULATING'}</span>
-                </div>
-            </div>
-
-            <div className="absolute top-4 right-6 text-right">
-                <div className="text-xs font-mono text-gray-500 uppercase">Client Orbit</div>
-                <div className="text-xl font-bold text-blue-400">{clients} <span className="text-xs font-normal text-gray-600">ACTIVE</span></div>
+            {/* Hover Floating Data (Simulated) */}
+            <div className="absolute bottom-6 right-6 text-right">
+                <span className="text-xs text-gray-500 uppercase block mb-1">Projected End</span>
+                <span className="text-xl font-bold text-white">${(numericIncome * 1.2).toLocaleString()}</span>
             </div>
 
         </div>

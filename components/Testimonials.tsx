@@ -34,15 +34,15 @@ const testimonials = [
 ];
 
 const TestimonialCard: React.FC<{ author: string; role: string; company: string; content: string; avatar: string }> = ({ author, role, company, content, avatar }) => (
-  <div className="flex-shrink-0 w-[400px] p-8 rounded-3xl bg-white/[0.02] border border-white/5 mr-8 relative">
+  <div className="flex-shrink-0 w-[400px] p-8 rounded-3xl bg-white/[0.05] border border-white/10 mr-8 relative hover:bg-white/[0.08] transition-colors">
     <div className="flex items-center gap-4 mb-6">
       <img src={avatar} alt={author} className="w-12 h-12 rounded-full border border-white/10" />
       <div>
-        <h4 className="font-bold text-white/90">{author}</h4>
-        <p className="text-xs text-gray-500 font-medium">{role} @ {company}</p>
+        <h4 className="font-bold text-white">{author}</h4>
+        <p className="text-xs text-gray-400 font-medium">{role} @ {company}</p>
       </div>
     </div>
-    <p className="text-gray-400 text-base leading-relaxed font-light">
+    <p className="text-gray-300 text-base leading-relaxed">
       &ldquo;{content}&rdquo;
     </p>
   </div>

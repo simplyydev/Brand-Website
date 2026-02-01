@@ -14,6 +14,20 @@ type Tab = 'overview' | 'settings';
 const Dashboard = () => {
     const [activeTab, setActiveTab] = useState<Tab>('overview');
     const [profile, setProfile] = useState<Profile | null>(null);
+
+    // Avatar Color State
+    const [avatarColor, setAvatarColor] = useState('from-purple-500 to-indigo-500');
+
+    useEffect(() => {
+        const savedColor = localStorage.getItem('moto_theme_avatar');
+        if (savedColor) setAvatarColor(savedColor);
+    }, []);
+
+    const handleColorChange = (colorClass: string) => {
+        setAvatarColor(colorClass);
+        localStorage.setItem('moto_theme_avatar', colorClass);
+    };
+
     // Stats State
     const [stats, setStats] = useState<UserStats | null>(null);
     const [loading, setLoading] = useState(true);
@@ -180,7 +194,7 @@ const Dashboard = () => {
                             <Bell size={20} />
                             <span className="absolute top-2 right-2 w-2 h-2 rounded-full bg-purple-500 border border-black" />
                         </button>
-                        <div className="h-8 w-8 rounded-full bg-gradient-to-r from-purple-500 to-indigo-500 flex items-center justify-center text-xs font-bold border border-white/20">
+                        <div className={`h-8 w-8 rounded-full bg-gradient-to-r ${avatarColor} flex items-center justify-center text-xs font-bold border border-white/20 shadow-lg`}>
                             {profile?.full_name?.charAt(0) || 'U'}
                         </div>
                     </div>
@@ -283,7 +297,7 @@ const Dashboard = () => {
                                         </div>
                                     ) : (
                                         <button onClick={() => setEditMode(true)} className="text-sm font-medium text-purple-400 hover:text-purple-300 flex items-center gap-2">
-                                            Edit Metrcis <TrendingUp size={14} />
+                                            Edit Metrics <TrendingUp size={14} />
                                         </button>
                                     )}
                                 </div>
@@ -326,6 +340,25 @@ const Dashboard = () => {
                                                     className="w-full bg-black/20 border border-white/10 rounded-xl py-3 pl-10 pr-4 focus:border-purple-500/50 focus:outline-none transition-colors"
                                                     placeholder="https://yourwebsite.com"
                                                 />
+                                            </div>
+                                        </div>
+
+                                        <div>
+                                            <label className="block text-sm font-medium text-gray-400 mb-2">Avatar Theme</label>
+                                            <div className="flex gap-3">
+                                                {[
+                                                    'from-purple-500 to-indigo-500',
+                                                    'from-blue-500 to-cyan-500',
+                                                    'from-green-500 to-emerald-500',
+                                                    'from-red-500 to-orange-500',
+                                                    'from-pink-500 to-rose-500'
+                                                ].map((gradient) => (
+                                                    <button
+                                                        key={gradient}
+                                                        onClick={() => handleColorChange(gradient)}
+                                                        className={`w-10 h-10 rounded-full bg-gradient-to-r ${gradient} border-2 transition-all ${avatarColor === gradient ? 'border-white scale-110 shadow-lg' : 'border-transparent hover:scale-105'}`}
+                                                    />
+                                                ))}
                                             </div>
                                         </div>
 
