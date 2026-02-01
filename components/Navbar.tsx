@@ -2,7 +2,11 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-const Navbar: React.FC = () => {
+interface NavbarProps {
+  onSignIn: () => void;
+}
+
+const Navbar: React.FC<NavbarProps> = ({ onSignIn }) => {
   return (
     <nav className="fixed top-0 left-0 right-0 z-50 border-b border-white/5 bg-[#050505]/80 backdrop-blur-md">
       <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
@@ -21,7 +25,7 @@ const Navbar: React.FC = () => {
         </div>
 
         <div className="flex items-center gap-4">
-          <button className="text-sm font-medium text-white hover:text-purple-400 transition-colors hidden sm:block">Sign In</button>
+          <button onClick={onSignIn} className="text-sm font-medium text-white hover:text-purple-400 transition-colors hidden sm:block">Sign In</button>
           <button className="bg-white text-black px-5 py-2.5 rounded-xl text-sm font-bold hover:bg-gray-200 transition-all hover:scale-105 active:scale-95">
             Get Started
           </button>

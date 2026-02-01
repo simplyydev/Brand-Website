@@ -1,6 +1,9 @@
 
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { supabase } from './lib/supabase';
+import { Session } from '@supabase/supabase-js';
+
 import Navbar from './components/Navbar';
 import Hero from './components/Hero';
 import Features from './components/Features';
@@ -8,25 +11,75 @@ import Testimonials from './components/Testimonials';
 import AIConsultant from './components/AIConsultant';
 import CTA from './components/CTA';
 import Footer from './components/Footer';
+import Auth from './components/Auth';
+import Dashboard from './components/Dashboard';
 
 const App: React.FC = () => {
   const [isStickyVisible, setIsStickyVisible] = useState(false);
+  const [session, setSession] = useState<Session | null>(null);
+  const [showAuth, setShowAuth] = useState(false);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    // 1. Check active session
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setLoading(false);
+    });
+
+    // 2. Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setSession(session);
+      // If signed in, ensure we hide auth screen/landing
+      if (session) setShowAuth(false);
+    });
+
+    // 3. Scroll Listener
     const handleScroll = () => {
       setIsStickyVisible(window.scrollY > 600);
     };
     window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('scroll', handleScroll);
+    };
   }, []);
 
+  if (loading) {
+    return <div className="min-h-screen bg-[#050505]" />;
+  }
+
+  // Route: Dashboard
+  if (session) {
+    return <Dashboard />;
+  }
+
+  // Route: Auth
+  if (showAuth) {
+    return (
+      <div className="relative">
+        <button
+          onClick={() => setShowAuth(false)}
+          className="absolute top-6 left-6 z-50 text-gray-400 hover:text-white text-sm"
+        >
+          ← Back to Home
+        </button>
+        <Auth />
+      </div>
+    );
+  }
+
+  // Route: Landing Page
   return (
     <div className="min-h-screen bg-[#050505] text-white selection:bg-purple-500/30">
-      <Navbar />
-      
+      <Navbar onSignIn={() => setShowAuth(true)} />
+
       <main>
         <Hero />
-        
+
         <section id="features" className="relative z-10 py-24 bg-[#050505]">
           <div className="max-w-7xl mx-auto px-6">
             <Features />

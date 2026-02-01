@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { motion } from 'framer-motion';
-
+import { ArrowRight, Sparkles } from 'lucide-react';
+import CardScanner from './CardScanner';
 const Hero: React.FC = () => {
   return (
     <section className="relative min-h-[140vh] flex flex-col items-center pt-48 overflow-hidden">
@@ -68,35 +69,8 @@ const Hero: React.FC = () => {
           className="mt-24 w-full max-w-5xl aspect-video bg-[#0A0A0A] rounded-3xl border border-white/10 shadow-2xl relative group overflow-hidden"
         >
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-50" />
-          
-          {/* Mock Dashboard / Design UI */}
-          <div className="p-8 h-full flex flex-col">
-            <div className="flex items-center gap-4 mb-8">
-              <div className="flex gap-1.5">
-                <div className="w-3 h-3 rounded-full bg-red-500/20" />
-                <div className="w-3 h-3 rounded-full bg-yellow-500/20" />
-                <div className="w-3 h-3 rounded-full bg-green-500/20" />
-              </div>
-              <div className="h-6 w-48 bg-white/5 rounded-md" />
-            </div>
-            
-            <div className="grid grid-cols-12 gap-6 flex-1">
-              <div className="col-span-8 flex flex-col gap-6">
-                <div className="h-32 bg-white/5 rounded-2xl border border-white/5 p-6 flex items-end">
-                   <div className="h-2 w-1/3 bg-purple-500/40 rounded" />
-                </div>
-                <div className="grid grid-cols-2 gap-6 h-full">
-                  <div className="bg-white/5 rounded-2xl border border-white/5" />
-                  <div className="bg-white/5 rounded-2xl border border-white/5" />
-                </div>
-              </div>
-              <div className="col-span-4 bg-white/5 rounded-2xl border border-white/5 flex flex-col items-center justify-center gap-4">
-                 <div className="w-20 h-20 rounded-full border-4 border-purple-500/20 border-t-purple-500" />
-                 <span className="text-2xl font-bold">99.8%</span>
-                 <span className="text-gray-500 text-xs uppercase">MG PRECISION</span>
-              </div>
-            </div>
-          </div>
+
+          <CardScanner />
 
           {/* Glowing element */}
           <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-600/20 blur-[100px] pointer-events-none group-hover:bg-purple-600/30 transition-all duration-700" />
@@ -108,11 +82,11 @@ const Hero: React.FC = () => {
         <div className="container mx-auto px-6 text-center">
           <p className="text-gray-500 uppercase tracking-widest text-[10px] font-bold mb-8">Powering growth for industry leaders</p>
           <div className="flex flex-wrap justify-center items-center gap-12 md:gap-24 opacity-30 grayscale hover:grayscale-0 hover:opacity-100 transition-all duration-500">
-             <div className="text-2xl font-bold tracking-tighter">ALTERA</div>
-             <div className="text-2xl font-bold tracking-tighter italic">ZOOM</div>
-             <div className="text-2xl font-bold tracking-tighter">HUBSPOT</div>
-             <div className="text-2xl font-bold tracking-tighter uppercase">Wabi</div>
-             <div className="text-2xl font-bold tracking-tighter">GITHUB</div>
+            <div className="text-2xl font-bold tracking-tighter">ALTERA</div>
+            <div className="text-2xl font-bold tracking-tighter italic">ZOOM</div>
+            <div className="text-2xl font-bold tracking-tighter">HUBSPOT</div>
+            <div className="text-2xl font-bold tracking-tighter uppercase">Wabi</div>
+            <div className="text-2xl font-bold tracking-tighter">GITHUB</div>
           </div>
         </div>
       </div>
