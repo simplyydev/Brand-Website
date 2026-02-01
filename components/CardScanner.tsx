@@ -55,7 +55,7 @@ class CardStreamController {
     this.isAnimating = false;
     this.lastMouseX = clientX;
     this.mouseVelocity = 0;
-    
+
     // Get current transform
     const transform = window.getComputedStyle(this.cardLine).transform;
     if (transform !== "none") {
@@ -124,7 +124,7 @@ class CardStreamController {
 
   updateSpeedIndicator() {
     if (this.speedIndicator) {
-        this.speedIndicator.textContent = Math.round(this.velocity).toString();
+      this.speedIndicator.textContent = Math.round(this.velocity).toString();
     }
   }
 
@@ -162,12 +162,16 @@ class CardStreamController {
       "function lerp(a, b, t) { return a + (b - a) * t; }",
       "const now = () => performance.now();",
     ];
-    
-    // Build dummy code library
-    const library = [...header, ...helpers];
-    for(let i=0; i<30; i++) library.push(`const v${i} = Math.random() * ${i};`);
 
-    let flow = library.join(" ");
+    // Build dummy hex code library for cleaner visual
+    const library = [
+      "0x4F 0x9A", "0x1B 0x3C", "LOAD_SEQ", "INIT_MEM", "BUFFER_01",
+      "00110101", "10101010", "SYSTEM_OK", "AUTH_REQ", "SCAN_IDE",
+      "0x88 0xFF", "SECURE_L2", "PING_ACK", "DATA_PKT", "VEC_3F"
+    ];
+    for (let i = 0; i < 10; i++) library.push(`0x${Math.floor(Math.random() * 255).toString(16).toUpperCase()}`);
+
+    let flow = library.join(" ").repeat(3); // Flatten and repeat
     flow = flow.replace(/\s+/g, " ").trim();
     const totalChars = width * height;
     while (flow.length < totalChars + width) {
@@ -244,7 +248,7 @@ class CardStreamController {
 
     // We need to query wrappers inside our container
     const wrappers = this.cardLine.querySelectorAll(".card-wrapper") as NodeListOf<HTMLElement>;
-    
+
     wrappers.forEach((wrapper) => {
       const cardRect = wrapper.getBoundingClientRect();
       const cardLeft = cardRect.left;
@@ -264,16 +268,16 @@ class CardStreamController {
 
         normalCard.style.setProperty("--clip-right", `${normalClipRight}%`);
         asciiCard.style.setProperty("--clip-left", `${asciiClipLeft}%`);
-        
+
         // Scan Effect div
         if (!wrapper.hasAttribute("data-scanned") && scannerIntersectLeft > 0) {
-            wrapper.setAttribute("data-scanned", "true");
-            const scanEffect = document.createElement("div");
-            scanEffect.className = "scan-effect";
-            wrapper.appendChild(scanEffect);
-            setTimeout(() => {
-                scanEffect.remove();
-            }, 600);
+          wrapper.setAttribute("data-scanned", "true");
+          const scanEffect = document.createElement("div");
+          scanEffect.className = "scan-effect";
+          wrapper.appendChild(scanEffect);
+          setTimeout(() => {
+            scanEffect.remove();
+          }, 600);
         }
 
       } else {
@@ -319,8 +323,8 @@ class CardStreamController {
     setInterval(() => this.updateAsciiContent(), 200);
     // Clipping Update Frame
     const loop = () => {
-        this.updateCardClipping();
-        requestAnimationFrame(loop);
+      this.updateCardClipping();
+      requestAnimationFrame(loop);
     };
     loop();
   }
@@ -334,69 +338,69 @@ class CardStreamController {
 // Simplified slightly for React context
 
 class ParticleSystem {
-    scene: THREE.Scene;
-    camera: THREE.OrthographicCamera;
-    renderer: THREE.WebGLRenderer;
-    particles: THREE.Points | null = null;
-    particleCount: number = 400;
-    canvas: HTMLCanvasElement;
-    velocities: Float32Array = new Float32Array(0);
-  
-    constructor(canvas: HTMLCanvasElement, width: number, height: number) {
-      this.canvas = canvas;
-      this.scene = new THREE.Scene();
-      this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, 125, -125, 1, 1000);
-      this.camera.position.z = 100;
-      this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
-      this.renderer.setSize(width, height); // Fixed height 250 in CSS
-      this.renderer.setClearColor(0x000000, 0);
-      this.createParticles(width);
-      this.animate();
+  scene: THREE.Scene;
+  camera: THREE.OrthographicCamera;
+  renderer: THREE.WebGLRenderer;
+  particles: THREE.Points | null = null;
+  particleCount: number = 400;
+  canvas: HTMLCanvasElement;
+  velocities: Float32Array = new Float32Array(0);
+
+  constructor(canvas: HTMLCanvasElement, width: number, height: number) {
+    this.canvas = canvas;
+    this.scene = new THREE.Scene();
+    this.camera = new THREE.OrthographicCamera(-width / 2, width / 2, 125, -125, 1, 1000);
+    this.camera.position.z = 100;
+    this.renderer = new THREE.WebGLRenderer({ canvas, alpha: true, antialias: true });
+    this.renderer.setSize(width, height); // Fixed height 250 in CSS
+    this.renderer.setClearColor(0x000000, 0);
+    this.createParticles(width);
+    this.animate();
+  }
+
+  createParticles(width: number) {
+    const geometry = new THREE.BufferGeometry();
+    const positions = new Float32Array(this.particleCount * 3);
+    const colors = new Float32Array(this.particleCount * 3);
+    const sizes = new Float32Array(this.particleCount);
+    const velocities = new Float32Array(this.particleCount);
+    const alphas = new Float32Array(this.particleCount);
+
+    // Create texture
+    const canvas = document.createElement("canvas");
+    canvas.width = 100; canvas.height = 100;
+    const ctx = canvas.getContext("2d")!;
+    const grad = ctx.createRadialGradient(50, 50, 0, 50, 50, 50);
+    grad.addColorStop(0.025, "#fff");
+    grad.addColorStop(1, "transparent"); // Simple white/transparent glow
+    ctx.fillStyle = grad;
+    ctx.beginPath(); ctx.arc(50, 50, 50, 0, Math.PI * 2); ctx.fill();
+    const texture = new THREE.CanvasTexture(canvas);
+
+    for (let i = 0; i < this.particleCount; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * width * 2;
+      positions[i * 3 + 1] = (Math.random() - 0.5) * 250;
+      positions[i * 3 + 2] = 0;
+
+      // Purple tint
+      colors[i * 3] = 0.5; // R
+      colors[i * 3 + 1] = 0.3; // G
+      colors[i * 3 + 2] = 1.0; // B
+
+      sizes[i] = (Math.random() * 140 + 60) / 8;
+      velocities[i] = Math.random() * 60 + 30;
+      alphas[i] = Math.random();
     }
-  
-    createParticles(width: number) {
-      const geometry = new THREE.BufferGeometry();
-      const positions = new Float32Array(this.particleCount * 3);
-      const colors = new Float32Array(this.particleCount * 3);
-      const sizes = new Float32Array(this.particleCount);
-      const velocities = new Float32Array(this.particleCount);
-      const alphas = new Float32Array(this.particleCount);
-  
-      // Create texture
-      const canvas = document.createElement("canvas");
-      canvas.width = 100; canvas.height = 100;
-      const ctx = canvas.getContext("2d")!;
-      const grad = ctx.createRadialGradient(50, 50, 0, 50, 50, 50);
-      grad.addColorStop(0.025, "#fff");
-      grad.addColorStop(1, "transparent"); // Simple white/transparent glow
-      ctx.fillStyle = grad;
-      ctx.beginPath(); ctx.arc(50, 50, 50, 0, Math.PI * 2); ctx.fill();
-      const texture = new THREE.CanvasTexture(canvas);
-  
-      for (let i = 0; i < this.particleCount; i++) {
-        positions[i * 3] = (Math.random() - 0.5) * width * 2;
-        positions[i * 3 + 1] = (Math.random() - 0.5) * 250;
-        positions[i * 3 + 2] = 0;
-        
-        // Purple tint
-        colors[i * 3] = 0.5; // R
-        colors[i * 3 + 1] = 0.3; // G
-        colors[i * 3 + 2] = 1.0; // B
-        
-        sizes[i] = (Math.random() * 140 + 60) / 8;
-        velocities[i] = Math.random() * 60 + 30;
-        alphas[i] = Math.random();
-      }
-  
-      geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-      geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
-      geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
-      geometry.setAttribute("alpha", new THREE.BufferAttribute(alphas, 1));
-      this.velocities = velocities;
-  
-      const material = new THREE.ShaderMaterial({
-        uniforms: { pointTexture: { value: texture }, size: { value: 15.0 } },
-        vertexShader: `
+
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+    geometry.setAttribute("size", new THREE.BufferAttribute(sizes, 1));
+    geometry.setAttribute("alpha", new THREE.BufferAttribute(alphas, 1));
+    this.velocities = velocities;
+
+    const material = new THREE.ShaderMaterial({
+      uniforms: { pointTexture: { value: texture }, size: { value: 15.0 } },
+      vertexShader: `
           attribute float alpha;
           varying float vAlpha;
           varying vec3 vColor;
@@ -408,7 +412,7 @@ class ParticleSystem {
             gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
           }
         `,
-        fragmentShader: `
+      fragmentShader: `
           uniform sampler2D pointTexture;
           varying float vAlpha;
           varying vec3 vColor;
@@ -416,46 +420,46 @@ class ParticleSystem {
             gl_FragColor = vec4(vColor, vAlpha) * texture2D(pointTexture, gl_PointCoord);
           }
         `,
-        transparent: true,
-        blending: THREE.AdditiveBlending,
-        depthWrite: false,
-        vertexColors: true,
-      });
-  
-      this.particles = new THREE.Points(geometry, material);
-      this.scene.add(this.particles);
-    }
-  
-    animate = () => {
-      requestAnimationFrame(this.animate);
-      if (this.particles && this.particles.geometry.attributes.position) {
-        const positions = this.particles.geometry.attributes.position.array as Float32Array;
-        const alphas = this.particles.geometry.attributes.alpha.array as Float32Array; 
-        const time = Date.now() * 0.001;
-  
-        for (let i = 0; i < this.particleCount; i++) {
-          positions[i * 3] += this.velocities[i] * 0.016;
-          // Loop
-          // We need width from somewhere, using internal 'width' storage or just check bound
-           // (Approximated bound check)
-           if (positions[i * 3] > 2000) positions[i * 3] = -2000;
-  
-          positions[i * 3 + 1] += Math.sin(time + i * 0.1) * 0.5;
-          alphas[i] = Math.max(0, Math.min(1, alphas[i] + (Math.random() > 0.5 ? 0.05 : -0.05)));
-        }
-        this.particles.geometry.attributes.position.needsUpdate = true;
-        this.particles.geometry.attributes.alpha.needsUpdate = true;
-      }
-      this.renderer.render(this.scene, this.camera);
-    }
+      transparent: true,
+      blending: THREE.AdditiveBlending,
+      depthWrite: false,
+      vertexColors: true,
+    });
 
-    resize(width: number) {
-        this.renderer.setSize(width, 250);
-        this.camera.left = -width / 2;
-        this.camera.right = width / 2;
-        this.camera.updateProjectionMatrix();
-    }
+    this.particles = new THREE.Points(geometry, material);
+    this.scene.add(this.particles);
   }
+
+  animate = () => {
+    requestAnimationFrame(this.animate);
+    if (this.particles && this.particles.geometry.attributes.position) {
+      const positions = this.particles.geometry.attributes.position.array as Float32Array;
+      const alphas = this.particles.geometry.attributes.alpha.array as Float32Array;
+      const time = Date.now() * 0.001;
+
+      for (let i = 0; i < this.particleCount; i++) {
+        positions[i * 3] += this.velocities[i] * 0.016;
+        // Loop
+        // We need width from somewhere, using internal 'width' storage or just check bound
+        // (Approximated bound check)
+        if (positions[i * 3] > 2000) positions[i * 3] = -2000;
+
+        positions[i * 3 + 1] += Math.sin(time + i * 0.1) * 0.5;
+        alphas[i] = Math.max(0, Math.min(1, alphas[i] + (Math.random() > 0.5 ? 0.05 : -0.05)));
+      }
+      this.particles.geometry.attributes.position.needsUpdate = true;
+      this.particles.geometry.attributes.alpha.needsUpdate = true;
+    }
+    this.renderer.render(this.scene, this.camera);
+  }
+
+  resize(width: number) {
+    this.renderer.setSize(width, 250);
+    this.camera.left = -width / 2;
+    this.camera.right = width / 2;
+    this.camera.updateProjectionMatrix();
+  }
+}
 
 
 // --- Main Component ---
@@ -469,7 +473,7 @@ const CardScanner: React.FC = () => {
   const scannerDivRef = useRef<HTMLDivElement>(null);
 
   const [isPlaying, setIsPlaying] = useState(true);
-  
+
   // Controllers
   const controllerRef = useRef<CardStreamController | null>(null);
   const particleSystemRef = useRef<ParticleSystem | null>(null);
@@ -488,21 +492,21 @@ const CardScanner: React.FC = () => {
 
     // Initialize Particle System (Background)
     if (particleCanvasRef.current) {
-        const { offsetWidth, offsetHeight } = containerRef.current;
-        particleSystemRef.current = new ParticleSystem(particleCanvasRef.current, offsetWidth, 250);
+      const { offsetWidth, offsetHeight } = containerRef.current;
+      particleSystemRef.current = new ParticleSystem(particleCanvasRef.current, offsetWidth, 250);
     }
 
     // Event Listeners for Drag (on Container/Document)
     const handleDown = (e: MouseEvent | TouchEvent) => {
-        // Only trigger if on cardline
-        if (e.target instanceof Node && cardLineRef.current?.contains(e.target as Node)) {
-            const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-            controller.handleDragStart(clientX);
-        }
+      // Only trigger if on cardline
+      if (e.target instanceof Node && cardLineRef.current?.contains(e.target as Node)) {
+        const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+        controller.handleDragStart(clientX);
+      }
     };
     const handleMove = (e: MouseEvent | TouchEvent) => {
-        const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
-        controller.handleDragMove(clientX);
+      const clientX = 'touches' in e ? e.touches[0].clientX : (e as MouseEvent).clientX;
+      controller.handleDragMove(clientX);
     };
     const handleUp = () => controller.handleDragEnd();
 
@@ -510,24 +514,24 @@ const CardScanner: React.FC = () => {
     document.addEventListener('mousedown', handleDown);
     document.addEventListener('mousemove', handleMove);
     document.addEventListener('mouseup', handleUp);
-    
+
     // Resize Observer
     const resizeObserver = new ResizeObserver((entries) => {
-        for (const entry of entries) {
-            const { width } = entry.contentRect;
-            controller.calculateDimensions();
-            if (particleSystemRef.current) particleSystemRef.current.resize(width);
-        }
+      for (const entry of entries) {
+        const { width } = entry.contentRect;
+        controller.calculateDimensions();
+        if (particleSystemRef.current) particleSystemRef.current.resize(width);
+      }
     });
     resizeObserver.observe(containerRef.current);
 
     // Scanner State Listener
     const onScannerState = (e: Event) => {
-        const active = (e as CustomEvent).detail.active;
-        if (scannerDivRef.current) {
-            if (active) scannerDivRef.current.classList.add('active');
-            else scannerDivRef.current.classList.remove('active');
-        }
+      const active = (e as CustomEvent).detail.active;
+      if (scannerDivRef.current) {
+        if (active) scannerDivRef.current.classList.add('active');
+        else scannerDivRef.current.classList.remove('active');
+      }
     };
     containerRef.current.addEventListener('scanner-state', onScannerState);
 
@@ -552,7 +556,7 @@ const CardScanner: React.FC = () => {
   const changeDir = () => controllerRef.current?.changeDirection();
 
   return (
-    <div className="card-scanner-wrapper" ref={containerRef}>
+    <div className="card-scanner-wrapper relative w-full h-full max-w-full overflow-hidden" ref={containerRef}>
       {/* Controls */}
       <div className="controls">
         <button className="control-btn flex items-center gap-2" onClick={toggle}>
@@ -573,8 +577,8 @@ const CardScanner: React.FC = () => {
 
       {/* Canvases */}
       <canvas id="particleCanvas" ref={particleCanvasRef}></canvas>
-      <canvas id="scannerCanvas" ref={scannerCanvasRef}></canvas> 
-      
+      <canvas id="scannerCanvas" ref={scannerCanvasRef}></canvas>
+
       {/* Scanner Visual */}
       <div className="scanner" ref={scannerDivRef}></div>
 

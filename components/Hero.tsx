@@ -7,7 +7,7 @@ const Hero: React.FC = () => {
   return (
     <section className="relative min-h-[140vh] flex flex-col items-center pt-48 overflow-hidden">
       {/* Abstract Background Gradients */}
-      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] pointer-events-none">
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[600px] h-[600px] md:w-[1200px] md:h-[1200px] pointer-events-none">
         <div className="absolute top-0 left-0 w-full h-full bg-[radial-gradient(circle_at_center,rgba(139,92,246,0.15),transparent_70%)]" />
         <div className="absolute -top-[10%] -left-[10%] w-[120%] h-[120%] bg-[#050505]" />
       </div>
@@ -33,7 +33,7 @@ const Hero: React.FC = () => {
           initial={{ opacity: 0, y: 30 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8, delay: 0.2 }}
-          className="text-5xl md:text-8xl font-black tracking-tight leading-[1.1] text-white/90 mb-8"
+          className="text-4xl sm:text-5xl md:text-8xl font-black tracking-tight leading-[1.1] text-white/90 mb-8"
         >
           Skills that <span className="italic font-medium text-purple-400">evolve</span> with your brand.
         </motion.h1>
