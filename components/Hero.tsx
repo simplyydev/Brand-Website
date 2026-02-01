@@ -2,7 +2,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { ArrowRight, Sparkles } from 'lucide-react';
-import CardScanner from './CardScanner';
+
 const Hero: React.FC = () => {
   return (
     <section className="relative min-h-[140vh] flex flex-col items-center pt-48 overflow-hidden">
@@ -61,16 +61,63 @@ const Hero: React.FC = () => {
           </button>
         </motion.div>
 
-        {/* Feature Preview Card */}
+        {/* Feature Preview Card - Redesigned as Glass Dashboard Preview */}
         <motion.div
           initial={{ opacity: 0, y: 100 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 1.2, delay: 0.8, type: 'spring' }}
-          className="mt-24 w-full max-w-5xl aspect-video bg-[#0A0A0A] rounded-3xl border border-white/10 shadow-2xl relative group overflow-hidden"
+          className="mt-24 w-full max-w-5xl aspect-video bg-[#0A0A0A]/50 backdrop-blur-3xl rounded-3xl border border-white/10 shadow-2xl relative group overflow-hidden"
         >
-          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 via-transparent to-transparent opacity-50" />
+          <div className="absolute inset-0 bg-gradient-to-br from-purple-500/5 via-transparent to-transparent" />
 
-          <CardScanner />
+          {/* Mock Dashboard UI - Abstract Internal Tool View */}
+          <div className="absolute inset-4 rounded-xl border border-white/5 bg-[#050505]/80 overflow-hidden flex flex-col">
+            {/* Mock Header */}
+            <div className="h-12 border-b border-white/5 flex items-center px-4 justify-between bg-white/[0.02]">
+              <div className="flex gap-2">
+                <div className="w-3 h-3 rounded-full bg-red-500/20 border border-red-500/50" />
+                <div className="w-3 h-3 rounded-full bg-yellow-500/20 border border-yellow-500/50" />
+                <div className="w-3 h-3 rounded-full bg-green-500/20 border border-green-500/50" />
+              </div>
+              <div className="text-[10px] font-mono text-gray-500 uppercase tracking-widest">MG-PROTOCOL-V4.2</div>
+            </div>
+
+            {/* Mock Content */}
+            <div className="flex-1 p-6 grid grid-cols-12 gap-4">
+              {/* Sidebar Mock */}
+              <div className="col-span-3 border-r border-white/5 pr-4 flex flex-col gap-3">
+                {[1, 2, 3, 4].map((i) => (
+                  <div key={i} className="h-2 w-full bg-white/5 rounded-full animate-pulse" style={{ width: `${Math.random() * 40 + 60}%`, animationDelay: `${i * 0.1}s` }} />
+                ))}
+              </div>
+
+              {/* Main Area Mock */}
+              <div className="col-span-9 flex flex-col gap-4">
+                <div className="flex gap-4 mb-4">
+                  <div className="h-24 flex-1 bg-purple-500/5 border border-purple-500/10 rounded-lg p-3 flex flex-col justify-between">
+                    <div className="w-6 h-6 rounded bg-purple-500/20" />
+                    <div className="h-2 w-16 bg-white/10 rounded" />
+                  </div>
+                  <div className="h-24 flex-1 bg-white/5 border border-white/10 rounded-lg p-3 flex flex-col justify-between">
+                    <div className="w-6 h-6 rounded bg-white/10" />
+                    <div className="h-2 w-16 bg-white/10 rounded" />
+                  </div>
+                  <div className="h-24 flex-1 bg-white/5 border border-white/10 rounded-lg p-3 flex flex-col justify-between">
+                    <div className="w-6 h-6 rounded bg-white/10" />
+                    <div className="h-2 w-16 bg-white/10 rounded" />
+                  </div>
+                </div>
+                <div className="flex-1 bg-white/5 rounded-lg border border-white/5 relative overflow-hidden">
+                  {/* Fake Chart Lines */}
+                  <div className="absolute bottom-0 left-0 right-0 h-32 flex items-end px-4 gap-2 opacity-30">
+                    {[...Array(20)].map((_, i) => (
+                      <div key={i} className="flex-1 bg-purple-500 transition-all duration-1000 ease-in-out" style={{ height: `${Math.random() * 100}%` }} />
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
 
           {/* Glowing element */}
           <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-purple-600/20 blur-[100px] pointer-events-none group-hover:bg-purple-600/30 transition-all duration-700" />
