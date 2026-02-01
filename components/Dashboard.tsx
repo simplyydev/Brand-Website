@@ -6,6 +6,8 @@ import {
     LogOut, Target, DollarSign, Users, Save, Loader,
     LayoutDashboard, Settings, User, TrendingUp, Bell
 } from 'lucide-react';
+import MetricVisualizer from './MetricVisualizer';
+
 
 type Tab = 'overview' | 'settings';
 
@@ -201,6 +203,15 @@ const Dashboard = () => {
                                     <h1 className="text-3xl font-black mb-1">Welcome back, <span className="text-purple-400">{profile?.full_name?.split(' ')[0]}</span></h1>
                                     <p className="text-gray-400">Here's what's happening with your agency today.</p>
                                 </div>
+
+                                {/* Metric Visualizer */}
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.95 }}
+                                    animate={{ opacity: 1, scale: 1 }}
+                                    transition={{ duration: 0.5 }}
+                                >
+                                    <MetricVisualizer goal={goal} income={income} clients={clients} />
+                                </motion.div>
 
                                 {/* Stats Grid */}
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
